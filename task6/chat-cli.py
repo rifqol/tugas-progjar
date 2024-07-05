@@ -35,15 +35,6 @@ class ChatClient:
             elif (command=='inbox'):
                 return self.inbox()
             
-            elif (command == "register"):
-                nama = j[1].strip()
-                negara = j[2].strip()
-                username = j[3].strip()
-                password = j[4].strip()
-                return self.register(nama, negara, username, password)
-            elif (command=='logout'):
-                return self.inbox()
-            
             # Local Group-related
             elif (command=='addgroup'):
                 groupname=j[1].strip()
@@ -73,54 +64,11 @@ class ChatClient:
                    message="{} {}" . format(message,w)
                 return self.sendgroup(groupname,message)
             
-            # Realm-related
-            elif (command=='addrealm'):
-                realm_id=j[1].strip()
-                realm_address=j[2].strip()
-                realm_port=j[3].strip()
-                return self.addrealm(realm_id,realm_address,realm_port)
-                
-            elif (command=='checkrealm'):
-                return self.checkrealm()
-                
-            elif (command=='sendrealm'):
-                realm_id=j[1].strip()
-                usernameto = j[2].strip()
-                message=""
-                for w in j[3:]:
-                   message="{} {}" . format(message,w)
-                return self.sendrealm(realm_id,usernameto,message)
-
-            elif (command=='inboxrealm'):
-                realm_id=j[1].strip()
-                return self.inboxrealm(realm_id)
-            
-            # elif command == 'joingrouprealm':
-            #     realm_id = j[1].strip()
-            #     groupname = j[2].strip()
-            #     return self.joingrouprealm(realm_id, groupname)
-
-            elif command == 'sendgrouprealm':
-                realm_id = j[1].strip()
-                groupname = j[2].strip()
-                message=""
-                for w in j[3:]:
-                   message="{} {}" . format(message,w)
-                return self.sendgrouprealm(realm_id, groupname, message)
-            
-            elif (command=='inboxgrouprealm'):
-                realm_id=j[1].strip()
-                groupname=j[2].strip()
-                return self.inboxgrouprealm(realm_id,groupname)
-            
             elif command == "sessioncheck":
                 return self.sessioncheck()
             
             elif command == "getgroups":
                 return self.getgroups()
-                    
-            elif command == "getrealms":
-                return self.getrealms()
             
             # File-related
             elif (command=='sendfile'):
@@ -145,33 +93,6 @@ class ChatClient:
                 filename=j[3].strip()
                 savepath=j[4].strip()
                 return self.downloadgroupfile(groupname,fileid,filename,savepath)
-            
-            elif (command=='sendrealmfile'):
-                realm_id=j[1].strip()
-                usernameto = j[2].strip()
-                filepath=j[3].strip()
-                return self.sendrealmfile(realm_id,usernameto,filepath)
-            
-            elif (command=='downloadrealmfile'):
-                realm_id=j[1].strip()
-                fileid=j[2].strip()
-                filename=j[3].strip()
-                savepath=j[4].strip()
-                return self.downloadrealmfile(realm_id,fileid,filename,savepath)
-            
-            elif (command=='sendgrouprealmfile'):
-                realm_id=j[1].strip()
-                groupname = j[2].strip()
-                filepath=j[3].strip()
-                return self.sendgrouprealmfile(realm_id,groupname,filepath)
-            
-            elif (command=='downloadgrouprealmfile'):
-                realm_id=j[1].strip()
-                groupname=j[2].strip()
-                fileid=j[3].strip()
-                filename=j[4].strip()
-                savepath=j[5].strip()
-                return self.downloadgrouprealmfile(realm_id,groupname,fileid,filename,savepath)
             
             else:
                 return "*Maaf, command tidak benar"
@@ -291,85 +212,6 @@ class ChatClient:
             return "{}" . format(json.dumps(result['messages']))
         else:
             return "Error, {}" . format(result['message'])
-
-    # Realm-related
-    def getrealms(self):
-        string = "getrealms {} \r\n"
-        result = self.sendstring(string)
-        if result["status"] == "OK":
-            return result["message"]
-        
-    def addrealm(self, realm_id, realm_address, realm_port):
-        if (self.tokenid==""):
-            return "Error, not authorized"
-        string="addrealm {} {} {} {} {}\r\n" . format(realm_id, realm_address, realm_port, self.address_ip, self.address_port)
-        result = self.sendstring(string)
-        if result['status']=='OK':
-            return "added {} realm" . format(realm_id)
-        else:
-            return "Error, {}" . format(result['message'])
-        
-    def checkrealm(self):
-        if (self.tokenid==""):
-            return "Error, not authorized"
-        string="checkrealm\r\n"
-        result = self.sendstring(string)
-        if result['status']=='OK':
-            return "returned realm list: {}".format(json.dumps(result['message']))
-        else:
-            return "Error, {}" . format(result['message'])
-    
-    def sendrealm(self, realm_id, usernameto, message):
-        if (self.tokenid==""):
-            return "Error, not authorized"
-        string="sendrealm {} {} {} {} {} {}\r\n" . format(self.address_ip, self.address_port, self.tokenid, realm_id, usernameto, message)
-        result = self.sendstring(string)
-        if result['status']=='OK':
-            return "realm message sent to user {} realm {}" . format(usernameto, realm_id)
-        else:
-            return "Error, {}" . format(result['message'])
-        
-    def inboxrealm(self, realm_id):
-        if (self.tokenid==""):
-            return "Error, not authorized"
-        string="inboxrealm {} {}\r\n" . format(self.tokenid, realm_id)
-        result = self.sendstring(string)
-        if result['status']=='OK':
-            return "{}" . format(json.dumps(result['messages']))
-        else:
-            return "Error, {}" . format(result['message'])
-    
-    def joingrouprealm(self, realm_id, groupname):
-        if self.tokenid == "":
-            return "Error, not authorized"
-        
-        string = "joingrouprealm {} {} {} {} {}\r\n".format(self.address_ip, self.address_port, self.tokenid, realm_id, groupname)
-        result = self.sendstring(string)
-        
-        if result['status'] == 'OK':
-            return "Joined {} group in realm {}".format(groupname, realm_id)
-        else:
-            return "Error, {}".format(result['message'])
-
-    def sendgrouprealm(self, realm_id, groupname, message):
-        if (self.tokenid==""):
-            return "Error, not authorized"
-        string="sendgrouprealm {} {} {} {} {} {} \r\n" . format(self.address_ip, self.address_port, self.tokenid, realm_id, groupname, message)
-        result = self.sendstring(string)
-        if result['status']=='OK':
-            return "group message sent to {} group in realm {}" . format(groupname, realm_id)
-        else:
-            return "Error, {}" . format(result['message'])
-
-    def inboxgrouprealm(self, realm_id, groupname):
-        if (self.tokenid==""):
-            return "Error, not authorized"
-        string="inboxgrouprealm {} {} {}\r\n" . format(self.tokenid, realm_id, groupname)
-        result = self.sendstring(string)
-        if result['status']=='OK':
-            return "{}" . format(json.dumps(result['messages']))
-        else:
-            return "Error, {}" . format(result['message'])
   
     # File-related
     def path_leaf(self,path):
@@ -425,68 +267,6 @@ class ChatClient:
         if (self.tokenid==""):
             return "Error, not authorized"
         string="downloadgroupfile {} {} {} {}\r\n" . format(self.tokenid,groupname,fileid,filename)
-        result = self.sendstring(string)
-        if result['status']=='OK':
-            filecontent = base64.b64decode(result['message'])
-            filepath = os.path.join(savepath, filename)
-            try:
-                with open(filepath, 'wb') as file:
-                    file.write(filecontent)
-                return "File downloaded and saved successfully."
-            except IOError as e:
-                return "Error while saving the file: {}".format(str(e))
-        else:
-            return "Error, {}" . format(result['message'])
-            
-    def sendrealmfile(self, realm_id, usernameto, filepath):
-        if (self.tokenid==""):
-            return "Error, not authorized"
-        filecontent = ""
-        with open(filepath, 'rb') as fp:
-            filecontent = base64.b64encode(fp.read()).decode('utf-8')
-        filename = self.path_leaf(filepath)
-        string="sendrealmfile {} {} {} {} {} {} {}\r\n" . format(self.address_ip, self.address_port, self.tokenid, realm_id, usernameto, filename,filecontent)
-        result = self.sendstring(string)
-        if result['status']=='OK':
-            return "realm message sent to user {} realm {}" . format(usernameto, realm_id)
-        else:
-            return "Error, {}" . format(result['message'])
-        
-    def downloadrealmfile(self, realm_id,fileid,filename,savepath):
-        if (self.tokenid==""):
-            return "Error, not authorized"
-        string="downloadrealmfile {} {} {} {}\r\n" . format(self.tokenid, realm_id,fileid,filename)
-        result = self.sendstring(string)
-        if result['status']=='OK':
-            filecontent = base64.b64decode(result['message'])
-            filepath = os.path.join(savepath, filename)
-            try:
-                with open(filepath, 'wb') as file:
-                    file.write(filecontent)
-                return "File downloaded and saved successfully."
-            except IOError as e:
-                return "Error while saving the file: {}".format(str(e))
-        else:
-            return "Error, {}" . format(result['message'])
-        
-    def sendgrouprealmfile(self,realm_id,groupname,filepath):
-        if (self.tokenid==""):
-            return "Error, not authorized"
-        filecontent = ""
-        with open(filepath, 'rb') as fp:
-            filecontent = base64.b64encode(fp.read()).decode('utf-8')
-        filename = self.path_leaf(filepath)
-        string="sendgrouprealmfile {} {} {} {} {} {} {}\r\n" . format(self.address_ip, self.address_port, self.tokenid, realm_id, groupname, filename,filecontent)
-        result = self.sendstring(string)
-        if result['status']=='OK':
-            return "file sent to {}" . format(groupname)
-        else:
-            return "Error, {}" . format(result['message'])
-        
-    def downloadgrouprealmfile(self,realm_id,groupname,fileid,filename,savepath):
-        if (self.tokenid==""):
-            return "Error, not authorized"
-        string="downloadgrouprealmfile {} {} {} {} {}\r\n" . format(self.tokenid,realm_id,groupname,fileid,filename)
         result = self.sendstring(string)
         if result['status']=='OK':
             filecontent = base64.b64decode(result['message'])

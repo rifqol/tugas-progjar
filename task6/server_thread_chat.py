@@ -50,7 +50,7 @@ class Server(threading.Thread):
         self.my_socket.listen(1)
         while True:
             self.connection, self.client_address = self.my_socket.accept()
-            logging.warning("connection from {}" . format(self.client_address))
+            # logging.warning("connection from {}" . format(self.client_address))
 
             clt = ProcessTheClient(self.connection, self.client_address)
             clt.start()
